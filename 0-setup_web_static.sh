@@ -19,7 +19,7 @@ sudo tee /data/web_static/releases/test/index.html > /dev/null <<EOF
   <head>
   </head>
   <body>
-    <h1>This is a test page</h1>
+    Holberton School
   </body>
 </html>
 EOF

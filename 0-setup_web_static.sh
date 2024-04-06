@@ -1,45 +1,27 @@
 #!/usr/bin/env bash
-# Sets up a web server for deployment of web_static.
-
-# Install Nginx if not already installed
+# script that sets up web servers for the deployment of web_static
 sudo apt-get update
-if ! command -v nginx &>/dev/null; then
-	sudo apt-get -y install nginx
-fi
+sudo apt-get -y install nginx
 sudo ufw allow 'Nginx HTTP'
 
-# Create necessary directories if they don't exist
-sudo mkdir -p /data/web_static/{releases,test,shared}
-sudo chown -R ubuntu:ubuntu /data/
-
-# Create a fake HTML file for testing
+sudo mkdir -p /data/
+sudo mkdir -p /data/web_static/
+sudo mkdir -p /data/web_static/releases/
+sudo mkdir -p /data/web_static/shared/
 sudo mkdir -p /data/web_static/releases/test/
-sudo tee /data/web_static/releases/test/index.html > /dev/null <<EOF
-<html>
+sudo touch /data/web_static/releases/test/index.html
+sudo echo "<html>
   <head>
   </head>
   <body>
     Holberton School
   </body>
-</html>
-EOF
+</html>" | sudo tee /data/web_static/releases/test/index.html
 
-# Ensure proper symbolic link creation
-if [ ! -d "/data/web_static/releases/test/" ]; then
-	    echo "Error: /data/web_static/releases/test/ directory not found."
-	        exit 1
-fi
+sudo ln -s -f /data/web_static/releases/test/ /data/web_static/current
 
-# Remove existing symbolic link if exists
-sudo rm -f /data/web_static/current
+sudo chown -R ubuntu:ubuntu /data/
 
-# Create symbolic link
-sudo ln -s /data/web_static/releases/test/ /data/web_static/current
+sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' /etc/nginx/sites-enabled/default
 
-# Update Nginx configuration if not already present
-if ! grep -q '/hbnb_static' /etc/nginx/sites-enabled/default; then
-	    sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' /etc/nginx/sites-enabled/default
-fi
-
-# Restart Nginx
-sudo systemctl restart nginx
+sudo service nginx restart

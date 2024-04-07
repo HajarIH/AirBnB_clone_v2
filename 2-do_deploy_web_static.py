@@ -32,6 +32,7 @@ def do_deploy(archive_path):
         run('rm -rf {}{}/web_static'.format(path, archive_no_ext))
         run('rm -rf /data/web_static/current')
         run('ln -s {}{}/ /data/web_static/current'.format(path, archive_no_ext))
+
         return True
     except:
         return False

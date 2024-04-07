@@ -4,6 +4,7 @@ import os.path
 from fabric.api import env
 from fabric.api import put
 from fabric.api import run
+from fabric.contrib.files import exists
 
 env.hosts = ["100.25.182.238", "18.234.106.174"]
 
@@ -30,6 +31,8 @@ def do_deploy(archive_path):
         run('mkdir -p {}{}/'.format(dest_path, archive_no_ext))
         run('tar -xzf /tmp/{} -C {}{}/'.format(archive_name, dest_path, archive_no_ext))
         run('rm /tmp/{}'.format(archive_name))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(dest_path, archive_no_ext))
+        run('rm -rf {}{}/web_static'.format(dest_path, archive_no_ext))
         run('rm -f /data/web_static/current')
         run('ln -s {}{}/ /data/web_static/current'.format(dest_path, archive_no_ext))
         

@@ -6,25 +6,32 @@ archive to the web servers
 
 from fabric.api import put, run, env
 from os.path import exists
-env.hosts = ['54.89.109.87', '100.25.190.21']
+env.hosts = ['100.25.182.238', '18.234.106.174']
 
 
 def do_deploy(archive_path):
-    """distributes an archive to the web servers"""
-    if exists(archive_path) is False:
+    """Distributes an archive to a web server.
+
+        Args:
+          archive_path (str): The path of the archive to distribute.
+        Returns:
+          If the file doesn't exist at archive_path or an error occurs - False.
+          Otherwise - True.
+                                                """
+    if not exists(archive_path):
         return False
     try:
-        file_n = archive_path.split("/")[-1]
-        no_ext = file_n.split(".")[0]
+        archive_n = archive_path.split("/")[-1]
+        archive_no_ext = archive_n.split(".")[0]
         path = "/data/web_static/releases/"
         put(archive_path, '/tmp/')
-        run('mkdir -p {}{}/'.format(path, no_ext))
-        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
-        run('rm /tmp/{}'.format(file_n))
-        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
-        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('mkdir -p {}{}/'.format(path, archive_no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(archive_n, path, archive_no_ext))
+        run('rm /tmp/{}'.format(archive_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, archive_no_ext))
+        run('rm -rf {}{}/web_static'.format(path, archive_no_ext))
         run('rm -rf /data/web_static/current')
-        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        run('ln -s {}{}/ /data/web_static/current'.format(path, archive_no_ext))
         return True
     except:
         return False
